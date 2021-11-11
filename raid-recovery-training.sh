@@ -1,4 +1,4 @@
-sda5#! /bin/bash
+#! /bin/bash
 # Created by Matthew Wisnowski sometime in 2017, modified June 27th, 2019.
 # The purpose of this script was to create a training environment for potential RAID/data recovery scenarios.
 # The values used are specific to this script as it would help create a consistent environment.
@@ -17,9 +17,9 @@ if [[ "$2" == "--lvm" ]]; then
 echo -e "\e[1;34mAttempting to fix lvm array and mount volume\e[0m"
 echo -e "\e[1;34mAssembling md2\e[0m"
 if [ `grep -c /dev/md2 /proc/mdstat` == 0 ]
-		then mdadm -S /dev/md2 &> /dev/null; mdadm -Af /dev/md2 /dev/sdc5 /dev/sd[bc]5 &> /dev/null
+		then mdadm -S /dev/md2 &> /dev/null; mdadm -Af /dev/md2 /dev/sda5 /dev/sd[bc]5 &> /dev/null
 		elif [ `grep -c "md2 : active" /proc/mdstat` == 1 ]
-		then mdadm -S /dev/md2 &> /dev/null; mdadm -Af /dev/md2 /dev/sdc5 /dev/sd[bc]5 &> /dev/null
+		then mdadm -S /dev/md2 &> /dev/null; mdadm -Af /dev/md2 /dev/sda5 /dev/sd[bc]5 &> /dev/null
 		echo -e "\e[1;32mmd2 active\e[0m"
 		else echo -d "\e[1;31mmd2 either assembled properly or needs further investigation\e[0m"
 	fi
@@ -90,14 +90,14 @@ echo -e "\e[1;34mAttempting to create multiple volume lvm Storage Pool and volum
 echo -e "\e[1;34mCreating md2\e[0m"
 if [ `grep -c md2 /proc/mdstat` == 0 ]
 	then
-		if [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 1 ] && [ `sfdisk -l 2>/dev/null|grep -c /dev/sdb5` == 1 ] && [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 1 ]
-			then mdadm -CR -amd --assume-clean /dev/md2 -n3 -l5 -e1.2 /dev/sdc5 /dev/sdb5 /dev/sdc5 &> /dev/null
+		if [ `sfdisk -l 2>/dev/null|grep -c /dev/sda5` == 1 ] && [ `sfdisk -l 2>/dev/null|grep -c /dev/sdb5` == 1 ] && [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 1 ]
+			then mdadm -CR -amd --assume-clean /dev/md2 -n3 -l5 -e1.2 /dev/sda5 /dev/sdb5 /dev/sdc5 &> /dev/null
 			echo -e "\e[1;32mmd2 created successfully\e[0m"
-		elif [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 0 ] ||[ `sfdisk -l 2>/dev/null|grep -c /dev/sdb5` == 0 ] || [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 0 ]
+		elif [ `sfdisk -l 2>/dev/null|grep -c /dev/sda5` == 0 ] ||[ `sfdisk -l 2>/dev/null|grep -c /dev/sdb5` == 0 ] || [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 0 ]
 			then echo -e "\e[1;34mChecking for lvm partitions\e[0m"
 			if [ -f /root/parted.sh ]
-				then sh parted.sh --lvm; mdadm -CR -amd --assume-clean /dev/md2 -n3 -l5 -e1.2 /dev/sdc5 /dev/sdb5 /dev/sdc5&> /dev/null
-				else wget -P /root https://sacmirror.synology.me/host/scripts/parted.sh; sh parted.sh --lvm; mdadm -CR -amd --assume-clean /dev/md2 -n3 -l5 -e1.2 /dev/sdc5 /dev/sdb5 /dev/sdc5 &> /dev/null
+				then sh parted.sh --lvm; mdadm -CR -amd --assume-clean /dev/md2 -n3 -l5 -e1.2 /dev/sda5 /dev/sdb5 /dev/sdc5&> /dev/null
+			else wget -P /root https://sacmirror.synology.me/host/scripts/parted.sh; sh parted.sh --lvm; mdadm -CR -amd --assume-clean /dev/md2 -n3 -l5 -e1.2 /dev/sda5 /dev/sdb5 /dev/sdc5 &> /dev/null
 				echo -e "\e[1;32mmd2 created successfully\e[0m"
 			fi
 		fi
@@ -252,7 +252,7 @@ echo -e "\e[1;34mUnmounting /volume1\e[0m"
 echo -e "\e[1;34mAssembling md2 in crashed state\e[0m"
 if [ `grep -c md2 /proc/mdstat` == 0 ]
 	then
-		if [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 1 ] &&[ `sfdisk -l 2>/dev/null|grep -c /dev/sdb5` == 1 ] && [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 1 ]
+		if [ `sfdisk -l 2>/dev/null|grep -c /dev/sda5` == 1 ] &&[ `sfdisk -l 2>/dev/null|grep -c /dev/sdb5` == 1 ] && [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 1 ]
 			then mdadm -AR /dev/md2 /dev/sdc5 &> /dev/null
 			echo -e "\e[1;32mmd2 assembled crashed\e[0m"
 	else
@@ -341,8 +341,8 @@ echo -e "\e[1;34mUnmounting /volume1\e[0m"
 echo -e "\e[1;34mAssembling md2 in crashed state with failed disk\e[0m"
 if [ `grep -c md2 /proc/mdstat` == 0 ]
 	then
-		if [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 1 ] &&[ `sfdisk -l 2>/dev/null|grep -c /dev/sdb5` == 1 ] && [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 1 ]
-			then mdadm -Af /dev/md2 /dev/sdc5 /dev/sdb5 &> /dev/null
+		if [ `sfdisk -l 2>/dev/null|grep -c /dev/sda5` == 1 ] &&[ `sfdisk -l 2>/dev/null|grep -c /dev/sdb5` == 1 ] && [ `sfdisk -l 2>/dev/null|grep -c /dev/sdc5` == 1 ]
+			then mdadm -Af /dev/md2 /dev/sda5 /dev/sdb5 &> /dev/null
 			mdadm -f /dev/md2 /dev/sdb5
 			echo -e "\e[1;32mmd2 assembled and crashed\e[0m"
 	else
